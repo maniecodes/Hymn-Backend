@@ -1,0 +1,20 @@
+{
+  "name": "hymn-app-backend",
+  "version": "1.0.0",
+  "description": "Hymn application backend",
+  "main": "index.js",
+  "scripts": {
+    "test": "nodemon index.js"
+  },
+  "keywords": [
+    "hymn",
+    "nodejs",
+    "rest",
+    "graphql",
+    "express",
+    "rest-api",
+    "mvc"
+  ],
+  "author": "Devmanny",
+  "license": "ISC"
+}
