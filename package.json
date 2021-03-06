@@ -4,7 +4,8 @@
   "description": "Hymn application backend",
   "main": "index.js",
   "scripts": {
-    "test": "nodemon index.js"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
   },
   "keywords": [
     "hymn",
@@ -16,5 +17,8 @@
     "mvc"
   ],
   "author": "Devmanny",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
