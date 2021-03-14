@@ -3,19 +3,17 @@ const Schema = mongoose.Schema;
 
 const verseSchema = new Schema(
   {
-    verses: [
+    wording: [
       {
         type: String,
         required: true,
       },
     ],
-    songs: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Song",
-        required: true,
-      },
-    ],
+    song: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      ref: "Song",
+    },
   },
   { timestamps: true }
 );

@@ -13,12 +13,6 @@ const hymnSchema = new Schema(
     imageUrl: {
       type: String,
     },
-    songs: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Song",
-      },
-    ],
   },
   { timestamps: true }
 );
