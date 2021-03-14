@@ -29,7 +29,7 @@ module.exports = {
         imageUrl: imageUrl,
       });
 
-      //save hymn
+      //save newly created hymn
       const createdHymn = await hymn.save();
 
       return {
@@ -49,6 +49,7 @@ module.exports = {
     hymnId = mongoose.Types.ObjectId(songInput.hymnId);
 
     try {
+      //Check if hymn exists
       const hymnExists = await Hymn.findById(hymnId);
       if (!hymnExists) {
         console.log("hymn does not exist");
@@ -57,17 +58,18 @@ module.exports = {
         throw error;
       }
 
+      // Checks if song  exists
       const songList = await Song.find({
         number: number,
         hymnId: hymnId,
       });
-      // Checks if song already exists
+
       if (songList.length > 0) {
         console.log("song exists");
         return;
       }
 
-      if (!title.number) {
+      if (!title.length) {
         console.log("Number is required");
       }
 
@@ -88,12 +90,65 @@ module.exports = {
         hymnId,
       });
 
+      //Save newly created song
       const createdSong = await song.save();
       return {
         ...createdSong._doc,
         _id: createdSong._id.toString(),
         createdAt: createdSong.createdAt.toISOString(),
         updatedAt: createdSong.updatedAt.toISOString(),
+      };
+    } catch (error) {
+      console.log(error);
+    }
+  },
+  createVerse: async function ({ verseInput }, req) {
+    let { wording, refrain, songId } = verseInput;
+    console.log(wording);
+    refrain = refrain.trim();
+    songId = mongoose.Types.ObjectId(verseInput.songId);
+    console.log(songId);
+
+    try {
+      //Check if song exists
+      const songExists = await Song.findById(songId);
+      if (!songExists) {
+        console.log("Song does not exist");
+        const error = new Error("Song do not exist");
+        error.code = 401;
+        throw error;
+      }
+
+      //Check if there are verses associated to this song already
+      const songList = await Verse.find({
+        songId: songId,
+      });
+      if (songList.length > 0) {
+        console.log("song exists");
+        return;
+      }
+
+      if (!wording.length) {
+        console.log("word is required");
+      }
+
+      if (!refrain.length) {
+        console.log("refrain is required");
+      }
+
+      let verse = new Verse({
+        wording,
+        refrain,
+        songId,
+      });
+
+      //save newly created verses
+      const createdVerses = await verse.save();
+      return {
+        ...createdVerses._doc,
+        _id: createdVerses._id.toString(),
+        createdAt: createdVerses.createdAt.toISOString(),
+        updatedAt: createdVerses.updatedAt.toISOString(),
       };
     } catch (error) {
       console.log(error);

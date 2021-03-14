@@ -26,7 +26,8 @@ module.exports = buildSchema(`
     type Verse {
         _id: ID!
         wording: String!
-        song: Song!
+        refrain: String
+        songId: Song!
     }
 
     type HymnData {
@@ -60,7 +61,9 @@ module.exports = buildSchema(`
     }
 
     input VerseInputData {
-        wording: String!
+        wording: [String]!
+        refrain: String
+        songId: ID!
     }
 
     type RootQuery {

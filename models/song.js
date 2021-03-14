@@ -26,12 +26,6 @@ const songSchema = new Schema(
       required: true,
       ref: "Hymn",
     },
-    // verses: [
-    //   {
-    //     type: Schema.Types.ObjectId,
-    //     ref: "Verse",
-    //   },
-    // ],
   },
   { timestamps: true }
 );

@@ -9,7 +9,10 @@ const verseSchema = new Schema(
         required: true,
       },
     ],
-    song: {
+    refrain: {
+      type: String,
+    },
+    songId: {
       type: Schema.Types.ObjectId,
       required: true,
       ref: "Song",
