@@ -25,7 +25,7 @@ module.exports = buildSchema(`
 
     type Verse {
         _id: ID!
-        wording: String!
+        wording: [String]!
         refrain: String
         songId: Song!
     }
@@ -71,6 +71,8 @@ module.exports = buildSchema(`
         song(id: ID!): Song!
         verse(id: ID!): Verse!
         hymns(page: Int): HymnData!
+        songs(page: Int): SongData!
+        verses(id: ID!): VerseData!
     }
 
     type RootMutation {

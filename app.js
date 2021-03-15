@@ -42,6 +42,7 @@ app.use(
 );
 
 app.use((error, req, res, next) => {
+  console.log("starting");
   console.log(error);
   const status = error.statusCode || 500;
   const message = error.message;

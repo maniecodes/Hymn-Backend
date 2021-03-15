@@ -6,21 +6,29 @@ const Verse = require("../models/verse");
 
 module.exports = {
   createHymn: async function ({ hymnInput }, req) {
+    const errors = [];
     let { title, description, imageUrl } = hymnInput;
     title = title.trim();
     description = description.trim();
 
     try {
       if (!title.length) {
-        console.log("Title is required");
+        errors.push({ message: "Title is required" });
       }
 
       if (!description.length) {
-        console.log("description is required");
+        errors.push({ message: "Description is required" });
       }
 
       if (!imageUrl.length) {
+        //TODO:: implement upload of default image
         console.log("upload a default image");
+      }
+      if (errors.length > 0) {
+        const error = new Error("Invalid input.");
+        error.data = errors;
+        error.code = 422;
+        throw error;
       }
 
       const hymn = new Hymn({
@@ -40,9 +48,41 @@ module.exports = {
       };
     } catch (error) {
       console.log(error);
+      error = new Error(error);
+      error.code = 500;
+      throw error;
+    }
+  },
+  hymns: async function ({ page }, req) {
+    try {
+      if (!page) {
+        page = 1;
+      }
+
+      const perPage = 10;
+      const totalHymns = await Hymn.find().countDocuments();
+      const hymns = await Hymn.find()
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * perPage)
+        .limit(perPage);
+
+      return {
+        hymns: hymns.map((h) => {
+          return {
+            ...h._doc,
+            _id: h._id.toString(),
+            createdAt: h.createdAt.toISOString(),
+            updatedAt: h.updatedAt.toISOString(),
+          };
+        }),
+        totalHymns: totalHymns,
+      };
+    } catch (error) {
+      console.log(error);
     }
   },
   createSong: async function ({ songInput }, req) {
+    const errors = [];
     let { number, title, description, pdfUrl, mp3Url, hymnId } = songInput;
     title = title.trim();
     description = description.trim();
@@ -53,9 +93,7 @@ module.exports = {
       const hymnExists = await Hymn.findById(hymnId);
       if (!hymnExists) {
         console.log("hymn does not exist");
-        const error = new Error("Hymn do not exist");
-        error.code = 401;
-        throw error;
+        errors.push({ message: "Hymn do not exist" });
       }
 
       // Checks if song  exists
@@ -66,19 +104,29 @@ module.exports = {
 
       if (songList.length > 0) {
         console.log("song exists");
-        return;
+        errors.push({ message: "Song exists already" });
       }
 
       if (!title.length) {
         console.log("Number is required");
+        errors.push({ message: "Number is required" });
       }
 
       if (!title.length) {
         console.log("Title is required");
+        errors.push({ message: "Title is required" });
       }
 
-      if (!description.legth) {
+      if (!description.length) {
         console.log("description is required");
+        errors.push({ message: "Description is required" });
+      }
+
+      if (errors.length > 0) {
+        const error = new Error("Invalid input.");
+        error.data = errors;
+        error.code = 422;
+        throw error;
       }
 
       let song = new Song({
@@ -100,23 +148,51 @@ module.exports = {
       };
     } catch (error) {
       console.log(error);
+      error = new Error(error);
+      error.code = 500;
+      throw error;
+    }
+  },
+  songs: async function ({ page }, req) {
+    try {
+      if (!page) {
+        page = 1;
+      }
+
+      const perPage = 10;
+      const totalSongs = await Song.find().countDocuments();
+      const songs = await Song.find()
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * perPage)
+        .limit(perPage);
+
+      return {
+        songs: songs.map((s) => {
+          return {
+            ...s._doc,
+            _id: s._id.toString(),
+            createdAt: h.createdAt.toISOString(),
+            updatedAt: h.updatedAt.toISOString(),
+          };
+        }),
+        totalSongs: totalSongs,
+      };
+    } catch (error) {
+      console.log(error);
     }
   },
   createVerse: async function ({ verseInput }, req) {
+    const errors = [];
     let { wording, refrain, songId } = verseInput;
-    console.log(wording);
     refrain = refrain.trim();
     songId = mongoose.Types.ObjectId(verseInput.songId);
-    console.log(songId);
 
     try {
       //Check if song exists
       const songExists = await Song.findById(songId);
       if (!songExists) {
         console.log("Song does not exist");
-        const error = new Error("Song do not exist");
-        error.code = 401;
-        throw error;
+        errors.push({ message: "Song do not exist" });
       }
 
       //Check if there are verses associated to this song already
@@ -125,15 +201,18 @@ module.exports = {
       });
       if (songList.length > 0) {
         console.log("song exists");
-        return;
+        errors.push({ message: "Song exists already" });
       }
 
       if (!wording.length) {
-        console.log("word is required");
+        errors.push({ message: "Wording is required" });
       }
 
-      if (!refrain.length) {
-        console.log("refrain is required");
+      if (errors.length > 0) {
+        const error = new Error("Invalid input.");
+        error.data = errors;
+        error.code = 422;
+        throw error;
       }
 
       let verse = new Verse({
@@ -149,6 +228,24 @@ module.exports = {
         _id: createdVerses._id.toString(),
         createdAt: createdVerses.createdAt.toISOString(),
         updatedAt: createdVerses.updatedAt.toISOString(),
+      };
+    } catch (error) {
+      console.log(error);
+    }
+  },
+  verses: async function ({ id }, req) {
+    try {
+      const verses = await Verse.find({ songId: id }).populate("song").exec();
+      return {
+        verses: verses.map((v) => {
+          return {
+            ...v._doc,
+            _id: v._id.toString(),
+            createdAt: v.createdAt.toISOString(),
+            updatedAt: v.updatedAt.toISOString(),
+          };
+        }),
+        totalVerses: verses[0].wording.length,
       };
     } catch (error) {
       console.log(error);
