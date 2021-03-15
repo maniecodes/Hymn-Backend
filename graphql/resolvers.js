@@ -123,6 +123,14 @@ module.exports = {
       updatedAt: updatedHymn.updatedAt.toISOString(),
     };
   },
+  deleteHymn: async function ({ id }, req) {
+    const hymn = await Hymn.findById(id);
+    if (!hymn) {
+      console.log("No hymn found");
+    }
+    await Hymn.findByIdAndRemove(id);
+    return true;
+  },
   createSong: async function ({ songInput }, req) {
     const errors = [];
     let { number, title, description, pdfUrl, mp3Url, hymnId } = songInput;
@@ -283,6 +291,14 @@ module.exports = {
       updatedAt: updatedSong.updatedAt.toISOString(),
     };
   },
+  deleteSong: async function ({ id }, req) {
+    const song = await Song.findById(id);
+    if (!song) {
+      console.log("No song found");
+    }
+    await Song.findByIdAndRemove(id);
+    return true;
+  },
   createVerse: async function ({ verseInput }, req) {
     const errors = [];
     let { wording, refrain, songId } = verseInput;
@@ -379,5 +395,13 @@ module.exports = {
       createdAt: updatedVerses.createdAt.toISOString(),
       updatedAt: updatedVerses.updatedAt.toISOString(),
     };
+  },
+  deleteVerse: async function ({ id }, req) {
+    const verse = await Verse.findById(id);
+    if (!verse) {
+      console.log("No verse found");
+    }
+    await Verse.findByIdAndRemove(id);
+    return true;
   },
 };

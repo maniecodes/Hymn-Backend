@@ -82,6 +82,9 @@ module.exports = buildSchema(`
         updateHymn(id: ID!, hymnInput: HymnInputData): Hymn!
         updateSong(id: ID!, songInput: SongInputData): Song!
         updateVerse(id: ID!, verseInput: VerseInputData): Verse!
+        deleteHymn(id: ID!): Boolean
+        deleteSong(id: ID!): Boolean
+        deleteVerse(id: ID!): Boolean
     }
 
     schema {
