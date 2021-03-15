@@ -81,6 +81,48 @@ module.exports = {
       console.log(error);
     }
   },
+  hymn: async function ({ id }, req) {
+    const hymn = await Hymn.findById(id);
+    if (!hymn) {
+      console.log("No hymn found");
+    }
+    return {
+      ...hymn._doc,
+      _id: hymn._id.toString(),
+      createdAt: hymn.createdAt.toISOString(),
+      updatedAt: hymn.updatedAt.toISOString(),
+    };
+  },
+  updateHymn: async function ({ id, hymnInput }, req) {
+    let { title, description, imageUrl } = hymnInput;
+    const hymn = await Hymn.findById(id);
+    if (!hymn) {
+      console.log("No hymn found");
+    }
+
+    if (!title.length) {
+      //errors.push({ message: "Title is required" });
+      console.log("Title is required");
+    }
+
+    if (!description.length) {
+      //errors.push({ message: "Description is required" });
+      console.log("Description is required");
+    }
+
+    hymn.title = title;
+    hymn.description = description;
+    if (imageUrl !== "undefined") {
+      hymn.imageUrl = imageUrl;
+    }
+    const updatedHymn = await hymn.save();
+    return {
+      ...updatedHymn._doc,
+      _id: updatedHymn._id.toString(),
+      createdAt: updatedHymn.createdAt.toISOString(),
+      updatedAt: updatedHymn.updatedAt.toISOString(),
+    };
+  },
   createSong: async function ({ songInput }, req) {
     const errors = [];
     let { number, title, description, pdfUrl, mp3Url, hymnId } = songInput;
@@ -107,10 +149,11 @@ module.exports = {
         errors.push({ message: "Song exists already" });
       }
 
-      if (!title.length) {
-        console.log("Number is required");
-        errors.push({ message: "Number is required" });
-      }
+      // TODO:: validate number
+      // if (!number.length) {
+      //   console.log("Number is required");
+      //   errors.push({ message: "Number is required" });
+      // }
 
       if (!title.length) {
         console.log("Title is required");
@@ -181,6 +224,65 @@ module.exports = {
       console.log(error);
     }
   },
+  song: async function ({ id }, req) {
+    const song = await Song.findById(id);
+    if (!song) {
+      console.log("No song found");
+    }
+    return {
+      ...song._doc,
+      _id: song._id.toString(),
+      createdAt: song.createdAt.toISOString(),
+      updatedAt: song.updatedAt.toISOString(),
+    };
+  },
+  updateSong: async function ({ id, songInput }, req) {
+    let { number, title, description, pdfUrl, mp3Url, hymnId } = songInput;
+    title = title.trim();
+    description = description.trim();
+    hymnId = mongoose.Types.ObjectId(songInput.hymnId);
+
+    //TODO::check current song number with the updated song number
+
+    //Check if hymn exists
+    const hymnExists = await Hymn.findById(hymnId);
+    if (!hymnExists) {
+      console.log("hymn does not exist");
+      // errors.push({ message: "Hymn do not exist" });
+    }
+
+    const song = await Song.findById(id);
+    if (!song) {
+      console.log("No song found");
+    }
+
+    if (!title.length) {
+      //errors.push({ message: "Title is required" });
+      console.log("Title is required");
+    }
+
+    if (!description.length) {
+      //errors.push({ message: "Description is required" });
+      console.log("Description is required");
+    }
+
+    song.number = number;
+    song.title = title;
+    song.description = description;
+    if (mp3Url !== "undefined") {
+      song.mp3Url = mp3Url;
+    }
+    if (pdfUrl !== "undefined") {
+      song.pdfUrl = pdfUrl;
+    }
+    const updatedSong = await song.save();
+    return {
+      ...updatedSong._doc,
+      _id: updatedSong._id.toString(),
+      createdAt: updatedSong.createdAt.toISOString(),
+      updatedAt: updatedSong.updatedAt.toISOString(),
+    };
+  },
   createVerse: async function ({ verseInput }, req) {
     const errors = [];
     let { wording, refrain, songId } = verseInput;
@@ -250,5 +352,32 @@ module.exports = {
     } catch (error) {
       console.log(error);
     }
+  },
+  updateVerse: async function ({ id, verseInput }, req) {
+    let { wording, refrain, songId } = verseInput;
+    refrain = refrain.trim();
+    songId = mongoose.Types.ObjectId(verseInput.songId);
+
+    const verse = await Verse.findById(id);
+    if (!verse) {
+      console.log("No verse found");
+    }
+
+    //Check if song exists
+    const songExists = await Song.findById(songId);
+    if (!songExists) {
+      console.log("Song does not exist");
+    }
+    verse.wording = wording;
+    verse.refrain = refrain;
+    verse.songId = songId;
+
+    const updatedVerses = await verse.save();
+    return {
+      ...updatedVerses._doc,
+      _id: updatedVerses._id.toString(),
+      createdAt: updatedVerses.createdAt.toISOString(),
+      updatedAt: updatedVerses.updatedAt.toISOString(),
+    };
   },
 };
