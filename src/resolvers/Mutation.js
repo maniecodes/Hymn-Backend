@@ -37,8 +37,128 @@ async function deleteHymn(parent, { id }, context, info) {
   return await context.prisma.hymn.delete({ where: { id: id } });
 }
 
+async function createSong(parent, { songInput }, context, info) {
+  let {
+    number,
+    title,
+    description,
+    pdfUrl,
+    mp3Url,
+    referain,
+    hymnId,
+  } = songInput;
+  hymnId = parseInt(hymnId);
+  number = parseInt(number);
+  console.log(parent);
+
+  //Check if hymn exists
+  const hymnExists = await context.prisma.hymn.findUnique({
+    where: {
+      id: hymnId,
+    },
+  });
+
+  if (!hymnExists) {
+    console.log("hymn does not exist");
+    return;
+  }
+
+  //Check if song exists for the particular hymn
+  const songExists = await context.prisma.song.findMany({
+    where: {
+      AND: [
+        {
+          number: {
+            equals: number,
+          },
+        },
+        {
+          hymnId: {
+            equals: hymnId,
+          },
+        },
+      ],
+    },
+  });
+
+  if (songExists.length > 0) {
+    console.log(`Song associated with hymn ${hymnId} exists already`);
+    return;
+  }
+  return await context.prisma.song.create({
+    data: {
+      number: number,
+      title: title,
+      description: description,
+      hymn: { connect: { id: hymnId } },
+      pdfUrl: pdfUrl,
+      mp3Url: mp3Url,
+      referain: referain,
+    },
+  });
+}
+
+async function updateSong(parent, { id, songInput }, context, info) {
+  let {
+    number,
+    title,
+    description,
+    pdfUrl,
+    mp3Url,
+    referain,
+    hymnId,
+  } = songInput;
+  hymnId = parseInt(hymnId);
+  number = parseInt(number);
+  id = parseInt(id);
+  console.log(id);
+
+  const hymnExists = await context.prisma.hymn.findUnique({
+    where: { id: hymnId },
+  });
+  const songExits = await context.prisma.song.findUnique({
+    where: { id: id },
+  });
+
+  if (!hymnExists) {
+    console.log("hymn does not exist");
+    return;
+  }
+
+  if (!songExits) {
+    console.log("No song found");
+    return;
+  }
+  return await context.prisma.song.update({
+    where: { id: id },
+    data: {
+      number: number,
+      title: title,
+      description: description,
+      pdfUrl: pdfUrl,
+      mp3Url: mp3Url,
+      referain: referain,
+      hymnId: hymnId,
+    },
+  });
+}
+async function deleteSong(parent, { id }, context, info) {
+  id = parseInt(id);
+  const song = await context.prisma.song.findUnique({
+    where: { id: id },
+  });
+  if (!song) {
+    console.log("No song found");
+    return;
+  }
+  return await context.prisma.song.delete({ where: { id: id } });
+}
+
 module.exports = {
   createHymn,
   updateHymn,
   deleteHymn,
+  createSong,
+  updateSong,
+  deleteSong,
 };

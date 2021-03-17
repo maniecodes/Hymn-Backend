@@ -64,21 +64,21 @@ input VerseInputData {
 
 type Query {
   hymn(id: ID!): Hymn!
-  # song(id: ID!): Song!
+  song(id: ID!): Song!
   # verse(id: ID!): Verse!
   hymns(filter: String): HymnData!
-  # songs(): SongData!
+  songs(filter: String): SongData!
   # verses(id: ID!): VerseData!
 }
 
 type Mutation {
   createHymn(hymnInput: HymnInputData): Hymn!
-  # createSong(songInput: SongInputData): Song!
+  createSong(songInput: SongInputData): Song!
   # createVerse(verseInput: VerseInputData): Verse!
   updateHymn(id: ID!, hymnInput: HymnInputData): Hymn
-  # updateSong(id: ID!, songInput: SongInputData): Song!
+  updateSong(id: ID!, songInput: SongInputData): Song!
   # updateVerse(id: ID!, verseInput: VerseInputData): Verse!
   deleteHymn(id: ID!): Hymn
-  # deleteSong(id: ID!): Song
+  deleteSong(id: ID!): Song
   # deleteVerse(id: ID!): Verse
 }

@@ -16,7 +16,7 @@ model Hymn {
   description String
   imageUrl String?
   createdAt DateTime @default(now())
-  songs Song[]
+  songs Song[] //A Hymn can have many songs
 }
 
 model Song {
@@ -26,13 +26,11 @@ model Song {
   description String
   pdfUrl String?
   mp3Url String?
-  hymn Hymn @relation(fields: [hymnId], references: [id])
+  hymn Hymn @relation(fields: [hymnId], references: [id]) //A song can have 1 hymn
   hymnId Int
   verses Verse[]
   referain String?
   createdAt DateTime @default(now())
-
-  @@unique([hymnId])
 }
 
 model Verse {
