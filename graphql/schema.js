@@ -66,12 +66,13 @@ module.exports = buildSchema(`
         songId: ID!
     }
 
+
     type RootQuery {
         hymn(id: ID!): Hymn!
         song(id: ID!): Song!
         verse(id: ID!): Verse!
         hymns(page: Int): HymnData!
-        songs(page: Int): SongData!
+        songs(page: Int, filter: String): SongData!
         verses(id: ID!): VerseData!
     }
 
