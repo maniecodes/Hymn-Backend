@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Hymn {
+  id Int @id @default(autoincrement())
+  title String
+  description String
+  imageUrl String?
+  createdAt DateTime @default(now())
+  songs Song[]
+}
+
+model Song {
+  id Int @id @default(autoincrement())
+  number Int
+  title String
+  description String
+  pdfUrl String?
+  mp3Url String?
+  hymn Hymn @relation(fields: [hymnId], references: [id])
+  hymnId Int
+  verses Verse[]
+  referain String?
+  createdAt DateTime @default(now())
+
+  @@unique([hymnId])
+}
+
+model Verse {
+  id Int @id @default(autoincrement())
+  wording String
+  song Song @relation(fields: [songId], references: [id])
+  songId Int
+
+  @@unique([songId])
+}
+
+
+model User {
+  id Int @id @default(autoincrement())
+  name String
+  email String @unique
+  password String
+}

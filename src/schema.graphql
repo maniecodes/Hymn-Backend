@@ -1,0 +1,84 @@
+type Song {
+  id: ID!
+  number: Int!
+  title: String!
+  description: String!
+  pdfUrl: String
+  mp3Url: String
+  hymn: Hymn!
+  verses: [Verse!]!
+  referain: String
+  createdAt: String!
+}
+
+type Hymn {
+  id: ID!
+  title: String!
+  description: String!
+  imageUrl: String
+  songs: [Song!]!
+  createdAt: String!
+}
+
+type Verse {
+  id: ID!
+  wording: String!
+  song: Song!
+}
+
+type HymnData {
+  hymns: [Hymn!]!
+  totalHymns: Int!
+}
+
+type SongData {
+  songs: [Song!]!
+  totalSongs: Int!
+}
+
+type VerseData {
+  verses: [Verse!]!
+  totalVerses: Int!
+}
+
+input HymnInputData {
+  title: String!
+  description: String!
+  imageUrl: String
+}
+
+input SongInputData {
+  number: Int!
+  title: String!
+  description: String!
+  pdfUrl: String
+  mp3Url: String
+  hymnId: ID!
+}
+
+input VerseInputData {
+  wording: [String]!
+  refrain: String
+  songId: ID!
+}
+
+type Query {
+  hymn(id: ID!): Hymn!
+  # song(id: ID!): Song!
+  # verse(id: ID!): Verse!
+  hymns(filter: String): HymnData!
+  # songs(): SongData!
+  # verses(id: ID!): VerseData!
+}
+
+type Mutation {
+  createHymn(hymnInput: HymnInputData): Hymn!
+  # createSong(songInput: SongInputData): Song!
+  # createVerse(verseInput: VerseInputData): Verse!
+  updateHymn(id: ID!, hymnInput: HymnInputData): Hymn
+  # updateSong(id: ID!, songInput: SongInputData): Song!
+  # updateVerse(id: ID!, verseInput: VerseInputData): Verse!
+  deleteHymn(id: ID!): Hymn
+  # deleteSong(id: ID!): Song
+  # deleteVerse(id: ID!): Verse
+}

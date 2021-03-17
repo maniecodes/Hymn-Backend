@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js"
+    "start": "nodemon index.js"
   },
   "keywords": [
     "hymn",
@@ -19,6 +19,7 @@
   "author": "Devmanny",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^2.19.0",
     "apollo-server": "^2.21.1",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
@@ -27,7 +28,10 @@
     "express-validator": "^6.10.0",
     "graphql": "^15.5.0",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.11.19",
     "validator": "^13.5.2"
+  },
+  "devDependencies": {
+    "@prisma/cli": "^2.19.0",
+    "prisma": "^2.19.0"
   }
 }
