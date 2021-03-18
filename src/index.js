@@ -8,6 +8,7 @@ const Query = require("./resolvers/Query");
 const Mutation = require("./resolvers/Mutation");
 const Hymn = require("./resolvers/Hymn");
 const Song = require("./resolvers/Song");
+const Verse = require("./resolvers/Verse");
 
 const prisma = new PrismaClient();
 
@@ -16,6 +17,7 @@ const resolvers = {
   Mutation,
   Hymn,
   Song,
+  Verse
 };
 
 server = new ApolloServer({

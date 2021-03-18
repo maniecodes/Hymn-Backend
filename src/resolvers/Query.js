@@ -36,7 +36,7 @@ async function songs(parent, args, context, info) {
           {
             hymn: {
               title: { contains: args.filter },
-              descriptoin: { contains: args.filter },
+              description: { contains: args.filter },
             },
           },
         ],
@@ -47,10 +47,37 @@ async function songs(parent, args, context, info) {
   const totalSongs = await context.prisma.song.count({ where });
   return { songs, totalSongs };
 }
+async function verse(parent, args, context, info) {
+  id = parseInt(args.id);
+  return await context.prisma.verse.findUnique({
+    where: { id: id },
+  });
+}
+async function verses(parent, args, context, info) {
+  const where = args.filter
+    ? {
+        OR: [
+          { wording: { contains: args.filter } },
+          {
+            song: {
+              title: { contains: args.filter },
+              description: { contains: args.filter },
+            },
+          },
+        ],
+      }
+    : {};
+
+  const verses = await context.prisma.verse.findMany({ where });
+  const totalVerses = await context.prisma.verse.count({ where });
+  return { verses, totalVerses };
+}
 
 module.exports = {
   hymn,
   hymns,
   song,
   songs,
+  verse,
+  verses,
 };
