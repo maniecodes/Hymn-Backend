@@ -10,6 +10,7 @@ async function main() {
   });
   const allHymns = await prisma.hymn.findMany();
   
+  
  
   console.log(allHymns);
 }

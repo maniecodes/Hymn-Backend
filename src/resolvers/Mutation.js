@@ -154,6 +154,75 @@ async function deleteSong(parent, { id }, context, info) {
   return await context.prisma.song.delete({ where: { id: id } });
 }
 
+async function createVerse(parent, { verseInput }, context, info) {
+  let { wording, songId } = verseInput;
+  songId = parseInt(songId);
+
+  //Check if song exists
+  const songExists = await context.prisma.song.findUnique({
+    where: {
+      id: songId,
+    },
+  });
+
+  if (!songExists) {
+    console.log("song does not exist");
+    return;
+  }
+
+  return await context.prisma.verse.create({
+    data: {
+      wording: wording,
+      song: { connect: { id: songId } },
+    },
+  });
+}
+async function updateVerse(parent, { id, verseInput }, context, info) {
+  let { wording, songId } = verseInput;
+  id = parseInt(id);
+  songId = parseInt(songId);
+
+  //Check if song exists
+  const songExists = await context.prisma.song.findUnique({
+    where: {
+      id: songId,
+    },
+  });
+
+  // Check if verse exists
+  const verseExits = await context.prisma.verse.findUnique({
+    where: { id: id },
+  });
+
+  if (!songExists) {
+    console.log("song does not exist");
+    return;
+  }
+
+  if (!verseExits) {
+    console.log("No verse found");
+    return;
+  }
+  return await context.prisma.verse.update({
+    where: { id: id },
+    data: {
+      wording: wording,
+      songId: songId,
+    },
+  });
+}
+async function deleteVerse(parent, { id }, context, info) {
+  id = parseInt(id);
+  const verse = await context.prisma.verse.findUnique({
+    where: { id: id },
+  });
+  if (!verse) {
+    console.log("No verse found");
+    return;
+  }
+  return await context.prisma.verse.delete({ where: { id: id } });
+}
+
 module.exports = {
   createHymn,
   updateHymn,
@@ -161,4 +230,7 @@ module.exports = {
   createSong,
   updateSong,
   deleteSong,
+  createVerse,
+  updateVerse,
+  deleteVerse,
 };

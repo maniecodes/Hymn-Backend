@@ -28,7 +28,7 @@ model Song {
   mp3Url String?
   hymn Hymn @relation(fields: [hymnId], references: [id]) //A song can have 1 hymn
   hymnId Int
-  verses Verse[]
+  verse Verse[]
   referain String?
   createdAt DateTime @default(now())
 }
@@ -36,12 +36,9 @@ model Song {
 model Verse {
   id Int @id @default(autoincrement())
   wording String
-  song Song @relation(fields: [songId], references: [id])
+  song Song @relation(fields: [songId], references: [id]) // A verse can have 1
   songId Int
-
-  @@unique([songId])
 }
-
 
 model User {
   id Int @id @default(autoincrement())

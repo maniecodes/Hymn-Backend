@@ -10,11 +10,12 @@
   "keywords": [
     "hymn",
     "nodejs",
-    "rest",
     "graphql",
     "express",
-    "rest-api",
-    "mvc"
+    "apollo",
+    "prisma",
+    "sqlite",
+    "crud"
   ],
   "author": "Devmanny",
   "license": "ISC",

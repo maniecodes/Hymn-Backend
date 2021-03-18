@@ -1,3 +1,12 @@
+type Hymn {
+  id: ID!
+  title: String!
+  description: String!
+  imageUrl: String
+  songs: [Song!]!
+  createdAt: String!
+}
+
 type Song {
   id: ID!
   number: Int!
@@ -11,20 +20,12 @@ type Song {
   createdAt: String!
 }
 
-type Hymn {
-  id: ID!
-  title: String!
-  description: String!
-  imageUrl: String
-  songs: [Song!]!
-  createdAt: String!
-}
-
 type Verse {
   id: ID!
   wording: String!
   song: Song!
 }
+
 
 type HymnData {
   hymns: [Hymn!]!
@@ -57,28 +58,27 @@ input SongInputData {
 }
 
 input VerseInputData {
-  wording: [String]!
-  refrain: String
   songId: ID!
+  wording: String!
 }
 
 type Query {
   hymn(id: ID!): Hymn!
   song(id: ID!): Song!
-  # verse(id: ID!): Verse!
+  verse(id: ID!): Verse!
   hymns(filter: String): HymnData!
   songs(filter: String): SongData!
-  # verses(id: ID!): VerseData!
+  verses(filter: String): VerseData!
 }
 
 type Mutation {
   createHymn(hymnInput: HymnInputData): Hymn!
   createSong(songInput: SongInputData): Song!
-  # createVerse(verseInput: VerseInputData): Verse!
-  updateHymn(id: ID!, hymnInput: HymnInputData): Hymn
+  createVerse(verseInput: VerseInputData): Verse!
+  updateHymn(id: ID!, hymnInput: HymnInputData): Hymn!
   updateSong(id: ID!, songInput: SongInputData): Song!
-  # updateVerse(id: ID!, verseInput: VerseInputData): Verse!
+  updateVerse(id: ID!, verseInput: VerseInputData): Verse!
   deleteHymn(id: ID!): Hymn
   deleteSong(id: ID!): Song
-  # deleteVerse(id: ID!): Verse
+  deleteVerse(id: ID!): Verse
 }
