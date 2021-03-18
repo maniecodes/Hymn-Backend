@@ -1,7 +1,6 @@
-const express = require("express");
 const { PrismaClient } = require("@prisma/client");
 const { ApolloServer } = require("apollo-server");
-const bodyPaser = require("body-parser");
+const { getUserId } = require("./utils");
 const fs = require("fs");
 const path = require("path");
 const Query = require("./resolvers/Query");
@@ -17,7 +16,7 @@ const resolvers = {
   Mutation,
   Hymn,
   Song,
-  Verse
+  Verse,
 };
 
 server = new ApolloServer({
@@ -27,6 +26,7 @@ server = new ApolloServer({
     return {
       ...req,
       prisma,
+      userId: req && req.headers.authorization ? getUserId(req) : null,
     };
   },
 });

@@ -26,7 +26,18 @@ type Verse {
   song: Song!
 }
 
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  password: String!
+  isAdmin: Boolean
+}
 
+type AuthPayload {
+  token: String
+  user: User
+}
 type HymnData {
   hymns: [Hymn!]!
   totalHymns: Int!
@@ -72,6 +83,13 @@ type Query {
 }
 
 type Mutation {
+  signup(
+    email: String!
+    password: String!
+    name: String!
+    isAdmin: Boolean
+  ): AuthPayload
+  login(email: String!, password: String!): AuthPayload
   createHymn(hymnInput: HymnInputData): Hymn!
   createSong(songInput: SongInputData): Song!
   createVerse(verseInput: VerseInputData): Verse!

@@ -1,5 +1,25 @@
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { APP_SECRET, getUserId } = require("../utils");
+
 async function createHymn(parent, { hymnInput }, context, info) {
+  const { userId } = context;
   let { title, description, imageUrl } = hymnInput;
+
+  if (!userId) {
+    console.log("user unauthorize");
+    return;
+  }
+  //GET USER ROLE
+  const user = await context.prisma.user.findUnique({
+    where: { id: userId },
+  });
+  console.log(user.isAdmin);
+  if (!user.isAdmin) {
+    console.log("unauthorized users are not allowed");
+    return;
+  }
+
   return await context.prisma.hymn.create({
     data: {
       title: title,
@@ -10,8 +30,24 @@ async function createHymn(parent, { hymnInput }, context, info) {
 }
 
 async function updateHymn(parent, { id, hymnInput }, context, info) {
+  const { userId } = context;
   let { title, description, imageUrl } = hymnInput;
   id = parseInt(id);
+
+  if (!userId) {
+    console.log("user unauthorize");
+    return;
+  }
+  //GET USER ROLE
+  const user = await context.prisma.user.findUnique({
+    where: { id: userId },
+  });
+  console.log(user.isAdmin);
+  if (!user.isAdmin) {
+    console.log("unauthorized users are not allowed");
+    return;
+  }
+
   const hymn = await context.prisma.hymn.findUnique({
     where: { id: id },
   });
@@ -27,6 +63,21 @@ async function updateHymn(parent, { id, hymnInput }, context, info) {
 
 async function deleteHymn(parent, { id }, context, info) {
   id = parseInt(id);
+
+  if (!userId) {
+    console.log("user unauthorize");
+    return;
+  }
+  //GET USER ROLE
+  const user = await context.prisma.user.findUnique({
+    where: { id: userId },
+  });
+  console.log(user.isAdmin);
+  if (!user.isAdmin) {
+    console.log("unauthorized users are not allowed");
+    return;
+  }
+
   const hymn = await context.prisma.hymn.findUnique({
     where: { id: id },
   });
@@ -50,6 +101,20 @@ async function createSong(parent, { songInput }, context, info) {
   hymnId = parseInt(hymnId);
   number = parseInt(number);
   console.log(parent);
+
+  if (!userId) {
+    console.log("user unauthorize");
+    return;
+  }
+  //GET USER ROLE
+  const user = await context.prisma.user.findUnique({
+    where: { id: userId },
+  });
+  console.log(user.isAdmin);
+  if (!user.isAdmin) {
+    console.log("unauthorized users are not allowed");
+    return;
+  }
 
   //Check if hymn exists
   const hymnExists = await context.prisma.hymn.findUnique({
@@ -113,6 +178,20 @@ async function updateSong(parent, { id, songInput }, context, info) {
   id = parseInt(id);
   console.log(id);
 
+  if (!userId) {
+    console.log("user unauthorize");
+    return;
+  }
+  //GET USER ROLE
+  const user = await context.prisma.user.findUnique({
+    where: { id: userId },
+  });
+  console.log(user.isAdmin);
+  if (!user.isAdmin) {
+    console.log("unauthorized users are not allowed");
+    return;
+  }
+
   const hymnExists = await context.prisma.hymn.findUnique({
     where: { id: hymnId },
   });
@@ -142,8 +221,23 @@ async function updateSong(parent, { id, songInput }, context, info) {
     },
   });
 }
+
 async function deleteSong(parent, { id }, context, info) {
   id = parseInt(id);
+  if (!userId) {
+    console.log("user unauthorize");
+    return;
+  }
+  //GET USER ROLE
+  const user = await context.prisma.user.findUnique({
+    where: { id: userId },
+  });
+  console.log(user.isAdmin);
+  if (!user.isAdmin) {
+    console.log("unauthorized users are not allowed");
+    return;
+  }
+
   const song = await context.prisma.song.findUnique({
     where: { id: id },
   });
@@ -158,6 +252,19 @@ async function createVerse(parent, { verseInput }, context, info) {
   let { wording, songId } = verseInput;
   songId = parseInt(songId);
 
+  if (!userId) {
+    console.log("user unauthorize");
+    return;
+  }
+  //GET USER ROLE
+  const user = await context.prisma.user.findUnique({
+    where: { id: userId },
+  });
+  console.log(user.isAdmin);
+  if (!user.isAdmin) {
+    console.log("unauthorized users are not allowed");
+    return;
+  }
   //Check if song exists
   const songExists = await context.prisma.song.findUnique({
     where: {
@@ -177,10 +284,24 @@ async function createVerse(parent, { verseInput }, context, info) {
     },
   });
 }
+
 async function updateVerse(parent, { id, verseInput }, context, info) {
   let { wording, songId } = verseInput;
   id = parseInt(id);
   songId = parseInt(songId);
+  if (!userId) {
+    console.log("user unauthorize");
+    return;
+  }
+  //GET USER ROLE
+  const user = await context.prisma.user.findUnique({
+    where: { id: userId },
+  });
+  console.log(user.isAdmin);
+  if (!user.isAdmin) {
+    console.log("unauthorized users are not allowed");
+    return;
+  }
 
   //Check if song exists
   const songExists = await context.prisma.song.findUnique({
@@ -211,8 +332,22 @@ async function updateVerse(parent, { id, verseInput }, context, info) {
     },
   });
 }
+
 async function deleteVerse(parent, { id }, context, info) {
   id = parseInt(id);
+  if (!userId) {
+    console.log("user unauthorize");
+    return;
+  }
+  //GET USER ROLE
+  const user = await context.prisma.user.findUnique({
+    where: { id: userId },
+  });
+  console.log(user.isAdmin);
+  if (!user.isAdmin) {
+    console.log("unauthorized users are not allowed");
+    return;
+  }
   const verse = await context.prisma.verse.findUnique({
     where: { id: id },
   });
@@ -223,7 +358,42 @@ async function deleteVerse(parent, { id }, context, info) {
   return await context.prisma.verse.delete({ where: { id: id } });
 }
 
+async function signup(parent, args, context, info) {
+  const password = await bcrypt.hash(args.password, 10);
+  const user = await context.prisma.user.create({
+    data: { ...args, password },
+  });
+
+  const token = jwt.sign({ userId: user.id }, APP_SECRET);
+
+  return {
+    token,
+    user,
+  };
+}
+
+async function login(parent, args, context, info) {
+  const user = await context.prisma.user.findUnique({
+    where: { email: args.email },
+  });
+  if (!user) {
+    throw new Error("No such user found");
+  }
+  const valid = await bcrypt.compare(args.password, user.password);
+  if (!valid) {
+    throw new Error("Invalid password");
+  }
+
+  const token = jwt.sign({ userId: user.id }, APP_SECRET);
+  return {
+    token,
+    user,
+  };
+}
+
 module.exports = {
+  signup,
+  login,
   createHymn,
   updateHymn,
   deleteHymn,
