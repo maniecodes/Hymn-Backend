@@ -1,91 +1,77 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { APP_SECRET, getUserId } = require("../utils");
+const { validateUser } = require("../utils");
 
 async function createHymn(parent, { hymnInput }, context, info) {
-  const { userId } = context;
   let { title, description, imageUrl } = hymnInput;
+  try {
+    await validateUser(context);
 
-  if (!userId) {
-    console.log("user unauthorize");
-    return;
-  }
-  //GET USER ROLE
-  const user = await context.prisma.user.findUnique({
-    where: { id: userId },
-  });
-  console.log(user.isAdmin);
-  if (!user.isAdmin) {
-    console.log("unauthorized users are not allowed");
-    return;
-  }
+    const createdHymn = await context.prisma.hymn.create({
+      data: {
+        title: title,
+        description: description,
+        imageUrl: imageUrl,
+      },
+    });
 
-  return await context.prisma.hymn.create({
-    data: {
-      title: title,
-      description: description,
-      imageUrl: imageUrl,
-    },
-  });
+    return createdHymn;
+  } catch (error) {
+    throw new Error(error);
+  }
 }
 
 async function updateHymn(parent, { id, hymnInput }, context, info) {
-  const { userId } = context;
   let { title, description, imageUrl } = hymnInput;
-  id = parseInt(id);
+  try {
+    if (id <= 0 || id === undefined) {
+      throw new Error("Invalid parameter");
+    }
 
-  if (!userId) {
-    console.log("user unauthorize");
-    return;
-  }
-  //GET USER ROLE
-  const user = await context.prisma.user.findUnique({
-    where: { id: userId },
-  });
-  console.log(user.isAdmin);
-  if (!user.isAdmin) {
-    console.log("unauthorized users are not allowed");
-    return;
-  }
+    id = parseInt(id);
 
-  const hymn = await context.prisma.hymn.findUnique({
-    where: { id: id },
-  });
-  if (!hymn) {
-    console.log("No hymn found");
-    return;
+    await validateUser(context);
+
+    const hymn = await context.prisma.hymn.findUnique({
+      where: { id: id },
+    });
+
+    if (!hymn) {
+      throw new Error("No hymn found");
+    }
+
+    const updatedHymn = await context.prisma.hymn.update({
+      where: { id: id },
+      data: { title: title, description: description, imageUrl: imageUrl },
+    });
+
+    return updatedHymn;
+  } catch (error) {
+    throw new Error(error);
   }
-  return await context.prisma.hymn.update({
-    where: { id: id },
-    data: { title: title, description: description, imageUrl: imageUrl },
-  });
 }
 
 async function deleteHymn(parent, { id }, context, info) {
-  id = parseInt(id);
+  try {
+    if (id <= 0 || id === undefined) {
+      throw new Error("Invalid parameter");
+    }
+    id = parseInt(id);
 
-  if (!userId) {
-    console.log("user unauthorize");
-    return;
-  }
-  //GET USER ROLE
-  const user = await context.prisma.user.findUnique({
-    where: { id: userId },
-  });
-  console.log(user.isAdmin);
-  if (!user.isAdmin) {
-    console.log("unauthorized users are not allowed");
-    return;
-  }
+    await validateUser(context);
 
-  const hymn = await context.prisma.hymn.findUnique({
-    where: { id: id },
-  });
-  if (!hymn) {
-    console.log("No hymn found");
-    return;
+    const hymn = await context.prisma.hymn.findUnique({
+      where: { id: id },
+    });
+    if (!hymn) {
+      throw new Error("No hymn found");
+    }
+    const deletedHymn = await context.prisma.hymn.delete({ where: { id: id } });
+
+    return deletedHymn;
+  } catch (error) {
+    throw new Error(error);
   }
-  return await context.prisma.hymn.delete({ where: { id: id } });
 }
 
 async function createSong(parent, { songInput }, context, info) {
@@ -98,69 +84,60 @@ async function createSong(parent, { songInput }, context, info) {
     referain,
     hymnId,
   } = songInput;
-  hymnId = parseInt(hymnId);
-  number = parseInt(number);
-  console.log(parent);
+  try {
+    hymnId = parseInt(hymnId);
+    number = parseInt(number);
 
-  if (!userId) {
-    console.log("user unauthorize");
-    return;
-  }
-  //GET USER ROLE
-  const user = await context.prisma.user.findUnique({
-    where: { id: userId },
-  });
-  console.log(user.isAdmin);
-  if (!user.isAdmin) {
-    console.log("unauthorized users are not allowed");
-    return;
-  }
+    await validateUser(context);
 
-  //Check if hymn exists
-  const hymnExists = await context.prisma.hymn.findUnique({
-    where: {
-      id: hymnId,
-    },
-  });
+    //Check if hymn exists
+    const hymnExists = await context.prisma.hymn.findUnique({
+      where: {
+        id: hymnId,
+      },
+    });
 
-  if (!hymnExists) {
-    console.log("hymn does not exist");
-    return;
-  }
+    if (!hymnExists) {
+      throw new Error("Hymn already exists");
+    }
 
-  //Check if song exists for the particular hymn
-  const songExists = await context.prisma.song.findMany({
-    where: {
-      AND: [
-        {
-          number: {
-            equals: number,
+    //Check if song exists for the particular hymn
+    const songExists = await context.prisma.song.findMany({
+      where: {
+        AND: [
+          {
+            number: {
+              equals: number,
+            },
           },
-        },
-        {
-          hymnId: {
-            equals: hymnId,
+          {
+            hymnId: {
+              equals: hymnId,
+            },
           },
-        },
-      ],
-    },
-  });
+        ],
+      },
+    });
 
-  if (songExists.length > 0) {
-    console.log(`Song associated with hymn ${hymnId} exists already`);
-    return;
+    if (songExists.length > 0) {
+      throw new Error(`Song associated with hymn ${hymnId} exists already`);
+    }
+
+    const createdSong = await context.prisma.song.create({
+      data: {
+        number: number,
+        title: title,
+        description: description,
+        hymn: { connect: { id: hymnId } },
+        pdfUrl: pdfUrl,
+        mp3Url: mp3Url,
+        referain: referain,
+      },
+    });
+    return createdSong;
+  } catch (error) {
+    throw new Error(error);
   }
-  return await context.prisma.song.create({
-    data: {
-      number: number,
-      title: title,
-      description: description,
-      hymn: { connect: { id: hymnId } },
-      pdfUrl: pdfUrl,
-      mp3Url: mp3Url,
-      referain: referain,
-    },
-  });
 }
 
 async function updateSong(parent, { id, songInput }, context, info) {
@@ -173,222 +150,195 @@ async function updateSong(parent, { id, songInput }, context, info) {
     referain,
     hymnId,
   } = songInput;
-  hymnId = parseInt(hymnId);
-  number = parseInt(number);
-  id = parseInt(id);
-  console.log(id);
 
-  if (!userId) {
-    console.log("user unauthorize");
-    return;
-  }
-  //GET USER ROLE
-  const user = await context.prisma.user.findUnique({
-    where: { id: userId },
-  });
-  console.log(user.isAdmin);
-  if (!user.isAdmin) {
-    console.log("unauthorized users are not allowed");
-    return;
-  }
+  try {
+    hymnId = parseInt(hymnId);
+    number = parseInt(number);
+    id = parseInt(id);
+    console.log(id);
 
-  const hymnExists = await context.prisma.hymn.findUnique({
-    where: { id: hymnId },
-  });
-  const songExits = await context.prisma.song.findUnique({
-    where: { id: id },
-  });
+    await validateUser(context);
 
-  if (!hymnExists) {
-    console.log("hymn does not exist");
-    return;
-  }
+    const hymnExists = await context.prisma.hymn.findUnique({
+      where: { id: hymnId },
+    });
+    const songExists = await context.prisma.song.findUnique({
+      where: { id: id },
+    });
 
-  if (!songExits) {
-    console.log("No song found");
-    return;
+    if (!hymnExists) {
+      throw new Error("No hymn found");
+    }
+
+    if (!songExists) {
+      throw new Error("No song found");
+    }
+    const updatedSong = await context.prisma.song.update({
+      where: { id: id },
+      data: {
+        number: number,
+        title: title,
+        description: description,
+        pdfUrl: pdfUrl,
+        mp3Url: mp3Url,
+        referain: referain,
+        hymnId: hymnId,
+      },
+    });
+    return updatedSong;
+  } catch (error) {
+    throw new Error(error);
   }
-  return await context.prisma.song.update({
-    where: { id: id },
-    data: {
-      number: number,
-      title: title,
-      description: description,
-      pdfUrl: pdfUrl,
-      mp3Url: mp3Url,
-      referain: referain,
-      hymnId: hymnId,
-    },
-  });
 }
 
 async function deleteSong(parent, { id }, context, info) {
-  id = parseInt(id);
-  if (!userId) {
-    console.log("user unauthorize");
-    return;
-  }
-  //GET USER ROLE
-  const user = await context.prisma.user.findUnique({
-    where: { id: userId },
-  });
-  console.log(user.isAdmin);
-  if (!user.isAdmin) {
-    console.log("unauthorized users are not allowed");
-    return;
-  }
+  try {
+    id = parseInt(id);
 
-  const song = await context.prisma.song.findUnique({
-    where: { id: id },
-  });
-  if (!song) {
-    console.log("No song found");
-    return;
+    await validateUser(context);
+
+    const songExists = await context.prisma.song.findUnique({
+      where: { id: id },
+    });
+    if (!songExists) {
+      throw new Error("No song found");
+    }
+    const deletedSong = await context.prisma.song.delete({ where: { id: id } });
+    return deletedSong;
+  } catch (error) {
+    throw new Error(error);
   }
-  return await context.prisma.song.delete({ where: { id: id } });
 }
 
 async function createVerse(parent, { verseInput }, context, info) {
   let { wording, songId } = verseInput;
-  songId = parseInt(songId);
+  try {
+    songId = parseInt(songId);
 
-  if (!userId) {
-    console.log("user unauthorize");
-    return;
-  }
-  //GET USER ROLE
-  const user = await context.prisma.user.findUnique({
-    where: { id: userId },
-  });
-  console.log(user.isAdmin);
-  if (!user.isAdmin) {
-    console.log("unauthorized users are not allowed");
-    return;
-  }
-  //Check if song exists
-  const songExists = await context.prisma.song.findUnique({
-    where: {
-      id: songId,
-    },
-  });
+    await validateUser(context);
 
-  if (!songExists) {
-    console.log("song does not exist");
-    return;
-  }
+    //Check if song exists
+    const songExists = await context.prisma.song.findUnique({
+      where: {
+        id: songId,
+      },
+    });
 
-  return await context.prisma.verse.create({
-    data: {
-      wording: wording,
-      song: { connect: { id: songId } },
-    },
-  });
+    if (!songExists) {
+      throw new Error("No song found");
+    }
+    const createdVerse = await context.prisma.verse.create({
+      data: {
+        wording: wording,
+        song: { connect: { id: songId } },
+      },
+    });
+
+    return createdVerse;
+  } catch (error) {
+    throw new Error(error);
+  }
 }
 
 async function updateVerse(parent, { id, verseInput }, context, info) {
   let { wording, songId } = verseInput;
-  id = parseInt(id);
-  songId = parseInt(songId);
-  if (!userId) {
-    console.log("user unauthorize");
-    return;
-  }
-  //GET USER ROLE
-  const user = await context.prisma.user.findUnique({
-    where: { id: userId },
-  });
-  console.log(user.isAdmin);
-  if (!user.isAdmin) {
-    console.log("unauthorized users are not allowed");
-    return;
-  }
+  try {
+    id = parseInt(id);
+    songId = parseInt(songId);
 
-  //Check if song exists
-  const songExists = await context.prisma.song.findUnique({
-    where: {
-      id: songId,
-    },
-  });
+    await validateUser(context);
 
-  // Check if verse exists
-  const verseExits = await context.prisma.verse.findUnique({
-    where: { id: id },
-  });
+    //Check if song exists
+    const songExists = await context.prisma.song.findUnique({
+      where: {
+        id: songId,
+      },
+    });
 
-  if (!songExists) {
-    console.log("song does not exist");
-    return;
+    // Check if verse exists
+    const verseExits = await context.prisma.verse.findUnique({
+      where: { id: id },
+    });
+
+    if (!songExists) {
+      throw new Error("No song found");
+    }
+
+    if (!verseExits) {
+      throw new Error("No verse found");
+    }
+    const updatedVerse = await context.prisma.verse.update({
+      where: { id: id },
+      data: {
+        wording: wording,
+        songId: songId,
+      },
+    });
+    return updatedVerse;
+  } catch (error) {
+    throw new Error(error);
   }
-
-  if (!verseExits) {
-    console.log("No verse found");
-    return;
-  }
-  return await context.prisma.verse.update({
-    where: { id: id },
-    data: {
-      wording: wording,
-      songId: songId,
-    },
-  });
 }
 
 async function deleteVerse(parent, { id }, context, info) {
-  id = parseInt(id);
-  if (!userId) {
-    console.log("user unauthorize");
-    return;
+  try {
+    id = parseInt(id);
+
+    await validateUser(context);
+
+    const verse = await context.prisma.verse.findUnique({
+      where: { id: id },
+    });
+    if (!verse) {
+      console.log("No verse found");
+      return;
+    }
+    const deletedVerse = await context.prisma.verse.delete({
+      where: { id: id },
+    });
+    return deletedVerse;
+  } catch (error) {
+    throw new Error(error);
   }
-  //GET USER ROLE
-  const user = await context.prisma.user.findUnique({
-    where: { id: userId },
-  });
-  console.log(user.isAdmin);
-  if (!user.isAdmin) {
-    console.log("unauthorized users are not allowed");
-    return;
-  }
-  const verse = await context.prisma.verse.findUnique({
-    where: { id: id },
-  });
-  if (!verse) {
-    console.log("No verse found");
-    return;
-  }
-  return await context.prisma.verse.delete({ where: { id: id } });
 }
 
 async function signup(parent, args, context, info) {
-  const password = await bcrypt.hash(args.password, 10);
-  const user = await context.prisma.user.create({
-    data: { ...args, password },
-  });
+  try {
+    const password = await bcrypt.hash(args.password, 10);
+    const user = await context.prisma.user.create({
+      data: { ...args, password },
+    });
 
-  const token = jwt.sign({ userId: user.id }, APP_SECRET);
+    const token = jwt.sign({ userId: user.id }, APP_SECRET);
 
-  return {
-    token,
-    user,
-  };
+    return {
+      token,
+      user,
+    };
+  } catch (error) {
+    throw new Error(error);
+  }
 }
 
 async function login(parent, args, context, info) {
-  const user = await context.prisma.user.findUnique({
-    where: { email: args.email },
-  });
-  if (!user) {
-    throw new Error("No such user found");
-  }
-  const valid = await bcrypt.compare(args.password, user.password);
-  if (!valid) {
-    throw new Error("Invalid password");
-  }
+  try {
+    const user = await context.prisma.user.findUnique({
+      where: { email: args.email },
+    });
 
-  const token = jwt.sign({ userId: user.id }, APP_SECRET);
-  return {
-    token,
-    user,
-  };
+    const valid = await bcrypt.compare(args.password, user.password);
+    if (!valid || !user) {
+      throw new Error("Invalid user/password");
+    }
+
+    const token = jwt.sign({ userId: user.id }, APP_SECRET);
+    return {
+      token,
+      user,
+    };
+  } catch (error) {
+    throw new Error(error);
+  }
 }
 
 module.exports = {

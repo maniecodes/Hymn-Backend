@@ -1,9 +1,23 @@
-function hymn(parent, args, context) {
-  return context.prisma.song.findUnique({ where: { id: parent.id } }).hymn();
+async function hymn(parent, args, context) {
+  try {
+    const hymn = await context.prisma.song
+      .findUnique({ where: { id: parent.id } })
+      .hymn();
+    return hymn;
+  } catch (error) {
+    throw new Error(error);
+  }
 }
 
-function verses(parent, args, context) {
-  return context.prisma.verse.findMany({ where: { songId: parent.id } });
+async function verses(parent, args, context) {
+  try {
+    const verses = await context.prisma.verse.findMany({
+      where: { songId: parent.id },
+    });
+    return verses;
+  } catch (error) {
+    throw new Error(error);
+  }
 }
 
 module.exports = {

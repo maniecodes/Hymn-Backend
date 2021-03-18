@@ -24,7 +24,30 @@ function getUserId(req, authToken) {
   throw new Error("Not authenticated");
 }
 
+async function validateUser(context) {
+  const { userId } = context;
+  try {
+    //Check if user is valid
+    if (!userId) {
+      throw new Error("You are not authorized to use this app");
+    }
+    //Get user by ID
+    const user = await context.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    //Check if user is not admin
+    if (!user.isAdmin) {
+      throw new Error("You are not allowed to perform this action");
+    }
+    return user;
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
 module.exports = {
   APP_SECRET,
   getUserId,
+  validateUser,
 };
