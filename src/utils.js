@@ -2,10 +2,9 @@ const jwt = require("jsonwebtoken");
 const { createWriteStream, unlink, existsSync, mkdirSync } = require("fs");
 const path = require("path");
 const cryptoRandomString = require("crypto-random-string");
-const APP_SECRET = "HymnApp-is-aw3some";
 
 function getTokenPayload(token) {
-  return jwt.verify(token, APP_SECRET);
+  return jwt.verify(token, process.env.APP_SECRET);
 }
 
 function getUserId(req, authToken) {

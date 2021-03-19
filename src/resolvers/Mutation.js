@@ -335,7 +335,7 @@ async function signup(parent, args, context, info) {
       data: { ...args, password },
     });
 
-    const token = jwt.sign({ userId: user.id }, APP_SECRET);
+    const token = jwt.sign({ userId: user.id }, process.env.APP_SECRET);
 
     return {
       token,
@@ -357,7 +357,7 @@ async function login(parent, args, context, info) {
       throw new Error("Invalid user/password");
     }
 
-    const token = jwt.sign({ userId: user.id }, APP_SECRET);
+    const token = jwt.sign({ userId: user.id }, process.env.APP_SECRET);
     return {
       token,
       user,
