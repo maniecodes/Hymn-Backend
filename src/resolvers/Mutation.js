@@ -1,6 +1,6 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { validateUser } = require("../utils");
+const { validateUser, singleUpload } = require("../utils");
 
 async function createHymn(parent, { hymnInput }, context, info) {
   let { title, description, imageUrl } = hymnInput;
@@ -79,16 +79,30 @@ async function createSong(parent, { songInput }, context, info) {
     number,
     title,
     description,
-    pdfUrl,
-    mp3Url,
+    pdfFile,
+    mp3File,
     referain,
     hymnId,
   } = songInput;
+  let filePath;
+  let pfdFileUrl = null;
+  let musicFileUrl = null;
+
   try {
     hymnId = parseInt(hymnId);
     number = parseInt(number);
 
     await validateUser(context);
+
+    if (pdfFile !== undefined) {
+      filePath = "pdf";
+      pfdFileUrl = await singleUpload(pdfFile, filePath);
+    }
+
+    if (mp3File !== undefined) {
+      filePath = "music";
+      musicFileUrl = await singleUpload(pdfFile, filePath);
+    }
 
     //Check if hymn exists
     const hymnExists = await context.prisma.hymn.findUnique({
@@ -129,8 +143,8 @@ async function createSong(parent, { songInput }, context, info) {
         title: title,
         description: description,
         hymn: { connect: { id: hymnId } },
-        pdfUrl: pdfUrl,
-        mp3Url: mp3Url,
+        pdfUrl: pfdFileUrl,
+        mp3Url: musicFileUrl,
         referain: referain,
       },
     });
@@ -145,11 +159,14 @@ async function updateSong(parent, { id, songInput }, context, info) {
     number,
     title,
     description,
-    pdfUrl,
-    mp3Url,
+    pdfFile,
+    mp3File,
     referain,
     hymnId,
   } = songInput;
+  let filePath;
+  let pfdFileUrl = null;
+  let musicFileUrl = null;
 
   try {
     hymnId = parseInt(hymnId);
@@ -158,6 +175,15 @@ async function updateSong(parent, { id, songInput }, context, info) {
     console.log(id);
 
     await validateUser(context);
+    if (pdfFile !== undefined) {
+      filePath = "pdf";
+      pfdFileUrl = await singleUpload(pdfFile, filePath);
+    }
+
+    if (mp3File !== undefined) {
+      filePath = "music";
+      musicFileUrl = await singleUpload(pdfFile, filePath);
+    }
 
     const hymnExists = await context.prisma.hymn.findUnique({
       where: { id: hymnId },
@@ -179,8 +205,8 @@ async function updateSong(parent, { id, songInput }, context, info) {
         number: number,
         title: title,
         description: description,
-        pdfUrl: pdfUrl,
-        mp3Url: mp3Url,
+        pdfUrl: pfdFileUrl,
+        mp3Url: musicFileUrl,
         referain: referain,
         hymnId: hymnId,
       },

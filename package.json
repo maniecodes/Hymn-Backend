@@ -22,13 +22,17 @@
   "dependencies": {
     "@prisma/client": "^2.19.0",
     "apollo-server": "^2.21.1",
+    "apollo-server-express": "^2.21.1",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
+    "crypto-random-string": "^3.3.1",
     "express": "^4.17.1",
     "express-graphql": "^0.12.0",
     "express-validator": "^6.10.0",
     "graphql": "^15.5.0",
+    "graphql-upload": "^11.0.0",
     "jsonwebtoken": "^8.5.1",
+    "multer": "^1.4.2",
     "validator": "^13.5.2"
   },
   "devDependencies": {

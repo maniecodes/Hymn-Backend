@@ -1,5 +1,8 @@
 const { PrismaClient } = require("@prisma/client");
-const { ApolloServer } = require("apollo-server");
+const express = require("express");
+// const multer = require("multer");
+// const { ApolloServer } = require("apollo-server");
+const { ApolloServer } = require("apollo-server-express");
 const { getUserId } = require("./utils");
 const fs = require("fs");
 const path = require("path");
@@ -19,7 +22,7 @@ const resolvers = {
   Verse,
 };
 
-server = new ApolloServer({
+const server = new ApolloServer({
   typeDefs: fs.readFileSync(path.join(__dirname, "schema.graphql"), "utf8"),
   resolvers,
   context: ({ req }) => {
@@ -31,4 +34,9 @@ server = new ApolloServer({
   },
 });
 
-server.listen().then(({ url }) => console.log(`Server is running on ${url}`));
+const app = express();
+server.applyMiddleware({ app });
+
+app.listen({ port: 4000 }, () =>
+  console.log(`Server ready at http://localhost:4000${server.graphqlPath}`)
+);

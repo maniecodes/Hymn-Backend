@@ -1,4 +1,7 @@
 const jwt = require("jsonwebtoken");
+const { createWriteStream, unlink, existsSync, mkdirSync } = require("fs");
+const path = require("path");
+const cryptoRandomString = require("crypto-random-string");
 const APP_SECRET = "HymnApp-is-aw3some";
 
 function getTokenPayload(token) {
@@ -46,8 +49,49 @@ async function validateUser(context) {
   }
 }
 
+async function singleUpload(file, filePath) {
+  const { createReadStream, filename, mimetype, encoding } = await file;
+  console.log("got here");
+  console.log(filename);
+  const dir = `uploads/${filePath}`;
+  if (!existsSync(dir)) {
+    mkdirSync(dir);
+  }
+  let url;
+  const stream = createReadStream();
+  if (
+    mimetype == "image/png" ||
+    mimetype === "image/jpg" ||
+    mimetype === "image/jpeg" ||
+    mimetype === "application/pdf"
+  ) {
+    const { ext } = path.parse(filename);
+    const randomName = cryptoRandomString({ length: 12 }) + ext;
+    const pathName = path.join(__dirname, `../../${dir}/${randomName}`);
+    await new Promise((resolve, reject) => {
+      const writeStream = createWriteStream(pathName);
+      writeStream.on("finish", resolve);
+      writeStream.on("error", (error) => {
+        unlink(path, () => {
+          reject(error);
+        });
+      });
+      stream.on("error", (error) => writeStream.destroy(error));
+      // Pipe the upload into the write stream.
+      stream.pipe(writeStream);
+    });
+
+    url = `http://localhost:4000/${dir}/${randomName}`;
+
+    return url;
+  } else {
+    throw new Error("Unsupported");
+  }
+}
+
 module.exports = {
   APP_SECRET,
   getUserId,
   validateUser,
+  singleUpload,
 };

@@ -26,6 +26,10 @@ type Verse {
   song: Song!
 }
 
+type File {
+  url: String!
+}
+
 type User {
   id: ID!
   name: String!
@@ -63,8 +67,8 @@ input SongInputData {
   number: Int!
   title: String!
   description: String!
-  pdfUrl: String
-  mp3Url: String
+  pdfFile: Upload
+  mp3File: Upload
   hymnId: ID!
 }
 
@@ -83,6 +87,7 @@ type Query {
 }
 
 type Mutation {
+  singleUpload(file: Upload!): File!
   signup(
     email: String!
     password: String!
