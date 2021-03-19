@@ -89,7 +89,6 @@ async function singleUpload(file, filePath) {
 }
 
 module.exports = {
-  APP_SECRET,
   getUserId,
   validateUser,
   singleUpload,
