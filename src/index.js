@@ -25,6 +25,8 @@ const resolvers = {
 const server = new ApolloServer({
   typeDefs: fs.readFileSync(path.join(__dirname, "schema.graphql"), "utf8"),
   resolvers,
+  introspection: true,
+  playground: true,
   context: ({ req }) => {
     return {
       ...req,
@@ -38,4 +40,8 @@ const app = express();
 app.set("port", process.env.PORT || 4000);
 server.applyMiddleware({ app });
 
-app.listen(app.get("port"));
+app.listen({ port: app.get("port") }, () =>
+  console.log(
+    `Server ready at http://...:${app.get("port")}${server.graphqlPath}`
+  )
+);
