@@ -4,7 +4,7 @@ type Hymn {
   description: String!
   imageUrl: String
   songs: [Song!]!
-  createdAt: String!
+  createdAt: DateTime!
 }
 
 type Song {
@@ -17,7 +17,7 @@ type Song {
   hymn: Hymn!
   verses: [Verse!]!
   referain: String
-  createdAt: String!
+  createdAt: DateTime!
 }
 
 type Verse {
@@ -81,9 +81,30 @@ type Query {
   hymn(id: ID!): Hymn!
   song(id: ID!): Song!
   verse(id: ID!): Verse!
-  hymns(filter: String): HymnData!
-  songs(filter: String): SongData!
+  hymns(
+    filter: String
+    skip: Int
+    take: Int
+    orderBy: HymnOrderByInput
+  ): HymnData!
+  songs(
+    filter: String
+    skip: Int
+    take: Int
+    orderBy: SongOrderByInput
+  ): SongData!
   verses(filter: String): VerseData!
+}
+
+input HymnOrderByInput {
+  title: Sort
+  createdAt: Sort
+}
+
+input SongOrderByInput {
+  number: Sort
+  title: Sort
+  createdAt: Sort
 }
 
 type Mutation {
@@ -105,3 +126,10 @@ type Mutation {
   deleteSong(id: ID!): Song
   deleteVerse(id: ID!): Verse
 }
+
+enum Sort {
+  asc
+  desc
+}
+
+scalar DateTime

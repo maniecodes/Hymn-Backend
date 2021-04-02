@@ -23,8 +23,15 @@ async function hymns(parent, args, context, info) {
         }
       : {};
 
-    const hymns = await context.prisma.hymn.findMany({ where });
+    const hymns = await context.prisma.hymn.findMany({
+      where,
+      skip: args.skip,
+      take: args.take,
+      orderBy: args.orderBy,
+    });
+
     const totalHymns = await context.prisma.hymn.count({ where });
+
     return { hymns, totalHymns };
   } catch (error) {
     throw new Error(error);
@@ -59,8 +66,15 @@ async function songs(parent, args, context, info) {
         }
       : {};
 
-    const songs = await context.prisma.song.findMany({ where });
+    const songs = await context.prisma.song.findMany({
+      where,
+      skip: args.skip,
+      take: args.take,
+      orderBy: args.orderBy,
+    });
+
     const totalSongs = await context.prisma.song.count({ where });
+
     return { songs, totalSongs };
   } catch (error) {
     throw new Error(error);
