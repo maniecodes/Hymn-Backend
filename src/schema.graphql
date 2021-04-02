@@ -79,8 +79,8 @@ input VerseInputData {
 
 type Query {
   hymn(id: ID!): Hymn!
-  song(id: ID!): Song!
-  verse(id: ID!): Verse!
+  song(hymnId: ID!): Song!
+  verse(songId: ID!): Verse!
   hymns(
     filter: String
     skip: Int
