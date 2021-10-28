@@ -3,14 +3,14 @@ const express = require("express");
 // const multer = require("multer");
 // const { ApolloServer } = require("apollo-server");
 const { ApolloServer } = require("apollo-server-express");
-const { getUserId } = require("./src/utils");
+const { getUserId } = require("./utils");
 const fs = require("fs");
 const path = require("path");
-const Query = require("./src/resolvers/Query");
-const Mutation = require("./src/resolvers/Mutation");
-const Hymn = require("./src/resolvers/Hymn");
-const Song = require("./src/resolvers/Song");
-const Verse = require("./src/resolvers/Verse");
+const Query = require("./resolvers/Query");
+const Mutation = require("./resolvers/Mutation");
+const Hymn = require("./resolvers/Hymn");
+const Song = require("./resolvers/Song");
+const Verse = require("./resolvers/Verse");
 
 const prisma = new PrismaClient();
 
@@ -23,7 +23,7 @@ const resolvers = {
 };
 
 const server = new ApolloServer({
-  typeDefs: fs.readFileSync(path.join(__dirname, "src/schema.graphql"), "utf8"),
+  typeDefs: fs.readFileSync(path.join(__dirname, "schema.graphql"), "utf8"),
   resolvers,
   introspection: true,
   playground: true,
